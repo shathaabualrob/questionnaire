@@ -59,6 +59,7 @@
     async function loadForms() {
         const params = new URLSearchParams(window.location.search);
         const key = params.get("name");
+        const keyNorm = key ? key.toLowerCase() : null;
 
         const displayNames = {
             "bahrain": "مملكة البحرين",
@@ -73,11 +74,28 @@
         };
 
         document.getElementById("formsTitle").innerText =
-            `استمارات: ${displayNames[key]}`;
+            `استمارات: ${displayNames[keyNorm] || 'الجهة'}`;
+
+        // Authorization: require passcode unless admin summary
+        if (keyNorm !== 'admin_summary') {
+            const auth = localStorage.getItem("authorized") === "true";
+            const authCountry = localStorage.getItem("authorized_country");
+            if (!auth || authCountry !== keyNorm) {
+                // not authorized for this country — redirect to passcode
+                window.location.href = `passcode.html?name=${keyNorm || key}`;
+                return;
+            }
+        }
 
         const data = await fetch("forms.json").then(r => r.json());
 
-        const forms = data[key];
+        const forms = keyNorm ? data[keyNorm] : undefined;
+
+        if (!forms || !Array.isArray(forms) || forms.length === 0) {
+            const container = document.getElementById("formsContainer");
+            container.innerHTML = `<div class="form-card">لا توجد استمارات متاحة لهذه الجهة.</div>`;
+            return;
+        }
 
         const container = document.getElementById("formsContainer");
         container.innerHTML = "";

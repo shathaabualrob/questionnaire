@@ -99,6 +99,7 @@
 <script>
     const params = new URLSearchParams(window.location.search);
     const key = params.get("name");
+    const keyNorm = key ? key.toLowerCase() : null;
 
     const displayNames = {
         "bahrain": "مملكة البحرين",
@@ -113,10 +114,10 @@
     };
 
     document.getElementById("countryTitle").innerText = 
-        `الدخول إلى: ${displayNames[key]}`;
+        `الدخول إلى: ${displayNames[keyNorm] || 'الجهة'}`;
 
     // تخطي الباسكود للإدمن
-    if (key === "admin_summary") {
+    if (keyNorm === "admin_summary") {
         localStorage.setItem("admin_auth", "true");
         window.location.href = "forms.html?name=admin_summary";
     }
@@ -124,13 +125,13 @@
     async function checkPasscode() {
         const entered = document.getElementById("passcodeInput").value.trim();
         const data = await fetch("passcodes.json").then(r => r.json());
-        const correct = data[key];
+        const correct = keyNorm ? data[keyNorm] : undefined;
 
         if (entered === correct) {
             localStorage.setItem("authorized", "true");
-            localStorage.setItem("authorized_country", key);
+            localStorage.setItem("authorized_country", keyNorm || key);
 
-            window.location.href = `forms.html?name=${key}`;
+            window.location.href = `forms.html?name=${keyNorm || key}`;
         } else {
             document.getElementById("errorMsg").style.display = "block";
         }
