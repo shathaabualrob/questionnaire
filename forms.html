@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>الاستمارات</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #e8f5e9, #ffffff);
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        .title {
+            font-size: 32px;
+            margin: 30px 0;
+            color: #2e7d32;
+            font-weight: 800;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+        }
+
+        .form-card {
+            background: #ffffff;
+            padding: 18px;
+            margin: 12px 0;
+            border-radius: 14px;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.10);
+            text-align: center;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 10px;
+            color: white;
+            background: #2e7d32;
+            padding: 10px 14px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1 id="formsTitle" class="title">الاستمارات</h1>
+
+    <div id="formsContainer" class="container"></div>
+
+<script>
+    async function loadForms() {
+        const params = new URLSearchParams(window.location.search);
+        const key = params.get("name");
+
+        const displayNames = {
+            "bahrain": "مملكة البحرين",
+            "qatar": "دولة قطر",
+            "uae": "دولة الإمارات العربية المتحدة",
+            "ksa": "المملكة العربية السعودية",
+            "oman": "سلطنة عمان",
+            "kuwait": "دولة الكويت",
+            "jordan": "المملكة الأردنية الهاشمية",
+            "egypt": "جمهورية مصر العربية",
+            "admin_summary": "ملخص الاستمارات للمشرف العام"
+        };
+
+        document.getElementById("formsTitle").innerText =
+            `استمارات: ${displayNames[key]}`;
+
+        const data = await fetch("forms.json").then(r => r.json());
+
+        const forms = data[key];
+
+        const container = document.getElementById("formsContainer");
+        container.innerHTML = "";
+
+        forms.forEach(form => {
+            container.innerHTML += `
+                <div class="form-card">
+                    <h3>${form.formName}</h3>
+                    <a href="${form.excelLink}" target="_blank">فتح الإكسل</a>
+                </div>
+            `;
+        });
+    }
+
+    loadForms();
+</script>
+
+</body>
+</html>
